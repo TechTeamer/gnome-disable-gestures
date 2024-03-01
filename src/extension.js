@@ -2,10 +2,14 @@
  * Disable Gestures 2021
  *
  * A GNOME extension that disables built-in gestures. Useful for kiosks and touch screen apps.
- * 
+ *
  */
 
 /* exported init */
+
+const KeyboardUI = imports.ui.keyboard;
+
+let _originalLastDeviceIsTouchscreen;
 
 class Extension {
   enable () {
@@ -15,6 +19,9 @@ class Extension {
     }
     global.display.connect('notify::focus-window', disableUnmaximizeGesture)
     global.display.connect('in-fullscreen-changed', disableUnmaximizeGesture)
+
+    _originalLastDeviceIsTouchscreen = KeyboardUI.KeyboardManager.prototype._lastDeviceIsTouchscreen;
+    KeyboardUI.KeyboardManager.prototype._lastDeviceIsTouchscreen = false;
   }
 
   disable () {
@@ -24,6 +31,9 @@ class Extension {
     }
     global.display.connect('notify::focus-window', enableUnmaximizeGesture)
     global.display.connect('in-fullscreen-changed', enableUnmaximizeGesture)
+
+    KeyboardUI.KeyboardManager.prototype._lastDeviceIsTouchscreen = _originalLastDeviceIsTouchscreen;
+    _originalLastDeviceIsTouchscreen = null;
   }
 }
 
